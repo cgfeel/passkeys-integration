@@ -1,13 +1,17 @@
 import { FC } from "react";
 import { Route, Routes } from "react-router-dom";
-import App from "./App";
-import Passkey from "./Passkey";
+import App from "./pages/home";
+import Navigation from "./components/Navigation";
+import Passkey from "./pages/passkey";
 
 const AppRouter: FC = () => (
-  <Routes>
-    <Route path="/" element={<App />} />
-    <Route path="/passkey" element={<Passkey />} />
-  </Routes>
+  <>
+    <Navigation />
+    <Routes>
+      <Route path="/" element={<App />} />
+      <Route path="/passkey" element={<Passkey />} />
+    </Routes>
+  </>
 );
 
 export default AppRouter;

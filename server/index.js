@@ -29,6 +29,7 @@ app.use(bodyParser.json());
 let users = {};
 let challenges = {};
 
+const rpName = 'sitename-webauthn';
 const rpId = 'localhost';
 const expectedOrigin = ['http://localhost:3000'];
 
@@ -49,55 +50,68 @@ app.listen(process.env.PORT || 3000, err => {
 app.use(express.static(path.join(__dirname, '../passkey-frontend/dist/passkey-frontend/browser')));
 
 
-app.post('/register/start', (req, res) => {
-    let username = req.body.username;
-    let challenge = getNewChallenge();
-    challenges[username] = convertChallenge(challenge);
+app.post('/register/start', async (req, res) => {
+    const username = req.body.username;
+    if (!username) {
+        return res.status(400).send({ error: "用户名不能为空" });
+    }
+    // let challenge = getNewChallenge();
+    // challenges[username] = convertChallenge(challenge);
     
-    const pubKey = {
-        challenge: challenge,
-        rp: {id: rpId, name: 'webauthn-app'},
-        user: {id: username, name: username, displayName: username},
-        pubKeyCredParams: [
-            {type: 'public-key', alg: -7},
-            {type: 'public-key', alg: -257},
-        ],
+    const options = await generateRegistrationOptions({
+        rpName,
+        rpID: rpId,
+        userName: username,
+        attestationType: 'none',
         authenticatorSelection: {
-            authenticatorAttachment: 'platform',
-            userVerification: 'required',
             residentKey: 'preferred',
-            requireResidentKey: false,
-        }
-    };
-    res.json(pubKey);
+            userVerification: 'preferred',
+            authenticatorAttachment: "platform"
+        },
+        // 設定要排除的驗證器，避免驗證器重複註冊
+        excludeCredentials: [],
+        timeout: 60000,
+    });
+
+    challenges[username] = options.challenge;
+    res.json(options);
 });
 
 
 app.post('/register/finish', async (req, res) => {
     const username = req.body.username;
-    // Verify the attestation response
+    const expectedChallenge = challenges[username];
+
+    if (!expectedChallenge) {
+        return res.status(400).send({ error: "没有找到注册用户" });
+    }
+
+    console.log('a--register-challenges', expectedChallenge);
+
     let verification;
     try {
-        console.log('a--register-challenges', challenges)
         verification = await verifyRegistrationResponse({
+            expectedRPID: rpId,
             response: req.body.data,
-            expectedChallenge: challenges[username],
-            expectedOrigin:expectedOrigin,
-            rpId
+            requireUserVerification: true,
+            expectedChallenge,
+            expectedOrigin
         });
     } catch (error) {
         console.error('a---register-verify-error', error);
         return res.status(400).send({error: error.message});
     }
-    const {verified, registrationInfo} = verification;
-    if (verified) {
+    const { verified, registrationInfo } = verification;
+    if (verified && registrationInfo) {
         console.log('a---register-verification', verification);
+        // const { credentialPublicKey, credentialID, counter } = registrationInfo;
         users[username] = registrationInfo;
-        return res.status(200).send(true);
+        return res.status(200).send({ verified: true });
     } else {
         res.status(500).send(false);
     }
 });
+
 app.post('/login/start', (req, res) => {
     let username = req.body.username;
     if (!users[username]) {
