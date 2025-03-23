@@ -1,22 +1,37 @@
 {
   "name": "passkeys-integration",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
-  "main": "index.js",
+  "engines": {
+    "node": "v21.6.1"
+  },
   "scripts": {
+    "build": "rsbuild build",
+    "dev": "rsbuild dev --open",
+    "preview": "rsbuild preview",
     "serve": "node server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "levi",
+  "author": "levi(cgfeel@gmail.com)",
   "license": "MIT",
-  "type": "module",
   "dependencies": {
     "@simplewebauthn/server": "^13.1.1",
     "base64url": "^3.0.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.4.0"
+  },
+  "devDependencies": {
+    "@rsbuild/core": "^1.2.19",
+    "@rsbuild/plugin-react": "^1.1.1",
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "typescript": "^5.8.2"
   }
 }
