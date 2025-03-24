@@ -18,6 +18,7 @@ import fs from 'fs';
 
 const app = express();
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const PORT = process.env.PORT || 3010;
 
 config(); // dotenv 需要单独调用
 
@@ -31,7 +32,7 @@ let challenges = {};
 
 const rpName = 'sitename-webauthn';
 const rpId = 'localhost';
-const expectedOrigin = ['http://localhost:3000'];
+const expectedOrigin = ['http://localhost:3000', `http://localhost:${PORT}`];
 
 const saveUser = (name, data, callback) => {
     const jsonString = JSON.stringify(data, null, 2);
@@ -43,9 +44,9 @@ const saveUser = (name, data, callback) => {
     return fs.writeFile(filePath, jsonString, callback);
 };
 
-app.listen(process.env.PORT || 3000, err => {
+app.listen(PORT, err => {
     if (err) throw err;
-    console.log('Server started on port', process.env.PORT || 3000);
+    console.log('Server started on port', PORT);
 });
 app.use(express.static(path.join(__dirname, '../passkey-frontend/dist/passkey-frontend/browser')));
 
@@ -132,6 +133,7 @@ app.post('/login/start', (req, res) => {
         userVerification: 'preferred',
     });
 });
+
 app.post('/login/finish', async (req, res) => {
     let username = req.body.username;
     if (!users[username]) {
