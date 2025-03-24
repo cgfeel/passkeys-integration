@@ -19,5 +19,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["src"]
+  "include": ["server", "src"],
+  "ts-node": {
+    // Tell ts-node CLI to install the --loader automatically, explained below
+    "experimentalSpecifierResolution": "node",
+    "transpileOnly": true,
+    "esm": true
+  }
 }
