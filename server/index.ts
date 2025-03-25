@@ -31,7 +31,7 @@ const challenges: Record<PropertyKey, string> = {};
 
 const rpName = 'SimpleWebAuthn Example';
 const rpId = 'localhost';
-const expectedOrigin = [`http://${rpID}:3000`, `http://${rpID}:${PORT}`];
+const expectedOrigin = [`http://${rpId}:3000`, `http://${rpId}:${PORT}`];
 
 app.listen(PORT, err => {
     if (err) throw err;

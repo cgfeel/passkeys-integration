@@ -3,7 +3,7 @@ import { AuthenticatorTransportFuture, Base64URLString, CredentialDeviceType } f
 let id = 1;
 
 const users: Record<string, UserModelType> = {};
-const passport: Record<PropertyKey, PassKeyType> = {};
+const passport: Record<number, PassKeyType> = {};
 const challenges: Record<PropertyKey, string> = {};
 
 function getUserFromDB(username: string): UserModelType | undefined {

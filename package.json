@@ -10,7 +10,7 @@
         "build": "rsbuild build",
         "dev": "rsbuild dev --open",
         "preview": "rsbuild preview",
-        "serve": "NODE_OPTIONS='--import=./register.js' node server/index.ts",
+        "serve": "NODE_OPTIONS='--import=./register.js' node --watch --trace-warnings server/index.ts",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
