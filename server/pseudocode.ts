@@ -1,21 +1,56 @@
-import { AuthenticatorTransportFuture, Base64URLString, CredentialDeviceType } from "@simplewebauthn/server";
+import { AuthenticatorTransportFuture, Base64URLString, CredentialDeviceType, PublicKeyCredentialCreationOptionsJSON, VerifiedRegistrationResponse } from "@simplewebauthn/server";
 
 let id = 1;
 
+const challenges: Record<number, PublicKeyCredentialCreationOptionsJSON> = {};
+const passport: PassKeyType[] = [];
 const users: Record<string, UserModelType> = {};
-const passport: Record<number, PassKeyType> = {};
-const challenges: Record<PropertyKey, string> = {};
 
+// 如果没有用户就创建一个
 function getUserFromDB(username: string): UserModelType | undefined {
+    if (username === '') return undefined;
+    if (!(username in users)) {
+        users[username] = {
+            create_at: Date.now(),
+            id: id++,
+            username
+        }
+    }
     return users[username];
 }
 
-function getUserPasskeys(user?:UserModelType): PassKeyType | undefined {
-    const { id } = user || { id: 0 }
-    return passport[id];
+function getUserPasskeys({ id: userid }: UserModelType): PassKeyType[] {
+    return passport.filter(({ user }) => user.id === userid);
 }
 
-export { getUserFromDB, getUserPasskeys };
+function getCurrentRegistrationOptions({ id }: UserModelType): PublicKeyCredentialCreationOptionsJSON | undefined {
+    return challenges[id];
+}
+
+function saveNewPasskeyInDB(user: UserModelType, options: PublicKeyCredentialCreationOptionsJSON, registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>) {
+    const { credential, credentialBackedUp, credentialDeviceType } = registrationInfo;
+    const { counter, id, publicKey, transports } = credential;
+
+    const create_at = Date.now();
+    passport.push({
+        backedUp: credentialBackedUp,
+        deviceType: credentialDeviceType,
+        last_used: create_at,
+        webauthnUserID: options.user.id,
+        counter,
+        create_at,
+        id,
+        publicKey,
+        transports,
+        user
+    });
+}
+
+function setCurrentRegistrationOptions({ id }: UserModelType, options: PublicKeyCredentialCreationOptionsJSON) {
+    challenges[id] = options;
+}
+
+export { getUserFromDB, getUserPasskeys, getCurrentRegistrationOptions, saveNewPasskeyInDB, setCurrentRegistrationOptions };
 
 type PassKeyType = {
     backedUp: boolean;
