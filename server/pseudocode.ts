@@ -1,10 +1,14 @@
 import { AuthenticatorTransportFuture, Base64URLString, CredentialDeviceType, PublicKeyCredentialCreationOptionsJSON, VerifiedRegistrationResponse } from "@simplewebauthn/server";
 
-let id = 1;
-
 const challenges: Record<number, PublicKeyCredentialCreationOptionsJSON> = {};
 const passport: PassKeyType[] = [];
 const users: Record<string, UserModelType> = {};
+
+let id = 1;
+
+function getCurrentRegistrationOptions({ id }: UserModelType): PublicKeyCredentialCreationOptionsJSON | undefined {
+    return challenges[id];
+}
 
 // 如果没有用户就创建一个
 function getUserFromDB(username: string): UserModelType | undefined {
@@ -21,10 +25,6 @@ function getUserFromDB(username: string): UserModelType | undefined {
 
 function getUserPasskeys({ id: userid }: UserModelType): PassKeyType[] {
     return passport.filter(({ user }) => user.id === userid);
-}
-
-function getCurrentRegistrationOptions({ id }: UserModelType): PublicKeyCredentialCreationOptionsJSON | undefined {
-    return challenges[id];
 }
 
 function saveNewPasskeyInDB(user: UserModelType, options: PublicKeyCredentialCreationOptionsJSON, registrationInfo: Exclude<VerifiedRegistrationResponse['registrationInfo'], undefined>) {
