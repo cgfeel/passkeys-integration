@@ -1,8 +1,8 @@
 // import { fido2Create, fido2Get } from "@ownid/webauthn";
-import { FC, useCallback, useState } from "react";
-import Wrapper from "../../components/Wrapper";
+import { FC, useRef, useState } from "react";
+import Wrapper, { WrapperInstance } from "../../components/Wrapper";
 
-const SITE_URL = "http://localhost:3010";
+/*const SITE_URL = "http://localhost:3010";
 
 const fetchHandle = async (path: string, data: Object) => {
     const options = {
@@ -17,10 +17,12 @@ const fetchHandle = async (path: string, data: Object) => {
     const json = await response.json();
 
     return json;
-};
+};*/
 
 const Passkey: FC = () => {
+    const wrapperRef = useRef<WrapperInstance>(null);
     const [name, setName] = useState("");
+    /*const [name, setName] = useState("");
 
     const loginStart = useCallback(async () => {
         if (name !== "") {
@@ -53,19 +55,24 @@ const Passkey: FC = () => {
             const register = await fetchHandle("/register/finish", fidoData);
             console.log("a---register", register);
         }
-    }, [name]);
+    }, [name]);*/
 
     return (
-        <Wrapper>
+        <Wrapper ref={wrapperRef}>
             <h1 className="font-bold mb-4 text-4xl">Authentication</h1>
-            <input
-                name="username"
-                placeholder="Username"
-                value={name}
-                onChange={e => setName(e.target.value)}
-            />
-            <button onClick={registerStart}>Register</button>
-            <button onClick={loginStart}>Login</button>
+            <div className="flex gap-4 mb-3">
+                <input
+                    className="border px-3 py-2 rounded-md"
+                    maxLength={20}
+                    onChange={({ target }) => setName(target.value)}
+                    onInput={() => wrapperRef.current?.clear()}
+                />
+                <button
+                    className="bg-sky-600/100 cursor-pointer px-3 py-2 rounded-3xl text-gray-50"
+                    onClick={() => wrapperRef.current?.register(name)}>
+                    Login
+                </button>
+            </div>
         </Wrapper>
     );
 };

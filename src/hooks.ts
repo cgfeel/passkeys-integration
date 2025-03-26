@@ -21,6 +21,16 @@ const handleStartRegistration = async (optionsJSON: PublicKeyCredentialCreationO
   }
 };
 
+const verifyUsername = (name: string, action: () => Promise<void>) => {
+    return new Promise((resovle, reject) => {
+        if (name === '') {
+            reject('name empty');
+        } else {
+            resovle({});
+        }
+    }).then(action)
+}
+
 export const useRegister = () => {
     const [message, setMessage] = useState("");
     const [status, setStatus] = useState<"default" | "error" | "success">("default");
@@ -30,31 +40,47 @@ export const useRegister = () => {
         setStatus("default");
     }, []);
 
-    const registerHandle = useCallback(async (username: string) => {
+    const loginHandle = useCallback(async (username: string) => {
         clear();
-        if (username === "") {
-            setMessage("用户名不能为空");
-            setStatus("error");
-        } else {
-            try {
-                const optionsJSON = await fetchHandle<PublicKeyCredentialCreationOptionsJSON>("/register/start", { username });
-                const asseResp = await handleStartRegistration(optionsJSON);
+        verifyUsername(username, async () => {
+            const optionsJSON = await fetchHandle<PublicKeyCredentialCreationOptionsJSON>("/register/start", { username });
+            const asseResp = await handleStartRegistration(optionsJSON);
 
-                const verificationJSON = await fetchHandle<Record<PropertyKey, any>>("/register/finish", { data: asseResp, username });
-                if (verificationJSON && verificationJSON.verified) {
-                    setMessage("Success!");
-                    setStatus("success");
-                } else {
-                    throw `Oh no, something went wrong! Response: ${JSON.stringify(
-                        verificationJSON
-                    )}`
-                }
-            } catch (error) {
-                setStatus("error");
-                setMessage(String(error));
+            const verificationJSON = await fetchHandle<Record<PropertyKey, any>>("/register/finish", { data: asseResp, username });
+            if (verificationJSON && verificationJSON.verified) {
+                setMessage("Success!");
+                setStatus("success");
+            } else {
+                throw `Oh no, something went wrong! Response: ${JSON.stringify(
+                    verificationJSON
+                )}`
             }
-        }
+        }).catch(error => {
+            setStatus("error");
+            setMessage(String(error));
+        });
     }, []);
 
-    return { message, status, clear, registerHandle } as const;
+    const registerHandle = useCallback((username: string) => {
+        clear();
+        verifyUsername(username, async () => {
+            const optionsJSON = await fetchHandle<PublicKeyCredentialCreationOptionsJSON>("/register/start", { username });
+            const asseResp = await handleStartRegistration(optionsJSON);
+
+            const verificationJSON = await fetchHandle<Record<PropertyKey, any>>("/register/finish", { data: asseResp, username });
+            if (verificationJSON && verificationJSON.verified) {
+                setMessage("Success!");
+                setStatus("success");
+            } else {
+                throw `Oh no, something went wrong! Response: ${JSON.stringify(
+                    verificationJSON
+                )}`
+            }
+        }).catch(error => {
+            setStatus("error");
+            setMessage(String(error));
+        });
+    }, []);
+
+    return { message, status, clear, loginHandle, registerHandle } as const;
 };

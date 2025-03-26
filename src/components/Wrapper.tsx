@@ -19,10 +19,13 @@ const tips = tv({
 });
 
 const Wrapper: FC<PropsWithChildren<WrapperProps>> = ({ children, ref }) => {
-    const { message, status, clear, registerHandle } = useRegister();
+    const { message, status, clear, loginHandle, registerHandle } =
+        useRegister();
+
     useImperativeHandle(
         ref,
         () => ({
+            login: name => loginHandle(name),
             register: name => registerHandle(name),
             clear,
         }),
@@ -44,6 +47,7 @@ export default Wrapper;
 
 export interface WrapperInstance {
     clear: () => void;
+    login: (name: string) => void;
     register: (name: string) => void;
 }
 
