@@ -1,14 +1,22 @@
-import express, { Request, Response } from 'express';
-import path, { dirname } from 'path';
+import {
+    generateAuthenticationOptions,
+    generateRegistrationOptions,
+    verifyRegistrationResponse,
+} from '@simplewebauthn/server';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import { config } from 'dotenv';
-import {
-    generateRegistrationOptions,
-    verifyRegistrationResponse,
-  } from '@simplewebauthn/server';
+import express, { Request, Response } from 'express';
+import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { getCurrentRegistrationOptions, getUserFromDB, getUserPasskeys, saveNewPasskeyInDB, setCurrentRegistrationOptions } from './pseudocode';
+import { 
+    getCurrentRegistrationOptions, 
+    getUserFromDB, 
+    getUserPasskeys, 
+    saveNewPasskeyInDB, 
+    setCurrentAuthenticationOptions, 
+    setCurrentRegistrationOptions 
+} from './pseudocode';
 
 config(); // dotenv 需要单独调用
 
@@ -38,8 +46,6 @@ app.post('/register/start', async (req: Request, res: Response) => {
         res.status(400).send({ error: "用户名不能为空" });
         return;
     }
-    // let challenge = getNewChallenge();
-    // challenges[username] = convertChallenge(challenge);
 
     const userPasskeys = getUserPasskeys(user);
     const options = await generateRegistrationOptions({
@@ -56,9 +62,6 @@ app.post('/register/start', async (req: Request, res: Response) => {
         timeout: 60000,
         rpName
     });
-
-    // console.log('a---options', options);
-    // challenges[username] = options.challenge;
 
     setCurrentRegistrationOptions(user, options)
     res.json(options);
@@ -85,9 +88,6 @@ app.post('/register/finish', async (req: Request, res: Response) => {
 
         const { verified, registrationInfo } = verification;
         if (verified && registrationInfo) {
-            console.log('a---register-verification', verification);
-            // const { credentialPublicKey, credentialID, counter } = registrationInfo;
-            // users[username] = registrationInfo;
             saveNewPasskeyInDB(user, currentOptions, registrationInfo);
             res.status(200).send({ verified });
         } else {
@@ -97,4 +97,42 @@ app.post('/register/finish', async (req: Request, res: Response) => {
         const { message } = error instanceof Error ? error : { message: "unknow error" }
         res.status(400).send({ error: message });
     }
+});
+
+app.post('/login/start', async (req: Request, res: Response) => {
+    const username = String(req.body.username||'');
+    const user = getUserFromDB(username);
+    if (user === undefined) {
+        res.status(400).send({ error: "没有找到注册用户" });
+        return;
+    }
+
+    const userPasskeys = getUserPasskeys(user);
+    if (userPasskeys.length === 0) {
+        res.status(400).send({ error: "用户还未绑定设备" });
+        return;
+    }
+
+    const options = await generateAuthenticationOptions({
+        allowCredentials: userPasskeys.map(({ id, transports }) => ({ id, transports })),
+        rpID: rpId,
+    });
+
+    setCurrentAuthenticationOptions(user, options);
+    res.json(options);
+
+    // let challenge = getNewChallenge();
+    // challenges[username] = convertChallenge(challenge);
+    // console.log('a---login-start', users);
+    // res.json({
+    //     challenge,
+    //     rpId,
+    //     allowCredentials: [{
+    //         type: 'public-key',
+    //         // id: users[username].credentialID,
+    //         id: users[username].credential.id,
+    //         transports: ['internal'],
+    //     }],
+    //     userVerification: 'preferred',
+    // });
 });

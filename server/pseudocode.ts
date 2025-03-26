@@ -1,13 +1,16 @@
-import { AuthenticatorTransportFuture, Base64URLString, CredentialDeviceType, PublicKeyCredentialCreationOptionsJSON, VerifiedRegistrationResponse } from "@simplewebauthn/server";
+import { AuthenticatorTransportFuture, Base64URLString, CredentialDeviceType, PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, VerifiedRegistrationResponse } from "@simplewebauthn/server";
 
-const challenges: Record<number, PublicKeyCredentialCreationOptionsJSON> = {};
+let id = 1;
+const challenges: ChallengeType = {
+    login: {},
+    register: {}
+};
+
 const passport: PassKeyType[] = [];
 const users: Record<string, UserModelType> = {};
 
-let id = 1;
-
 function getCurrentRegistrationOptions({ id }: UserModelType): PublicKeyCredentialCreationOptionsJSON | undefined {
-    return challenges[id];
+    return challenges.register[id];
 }
 
 // 如果没有用户就创建一个
@@ -46,11 +49,20 @@ function saveNewPasskeyInDB(user: UserModelType, options: PublicKeyCredentialCre
     });
 }
 
-function setCurrentRegistrationOptions({ id }: UserModelType, options: PublicKeyCredentialCreationOptionsJSON) {
-    challenges[id] = options;
+function setCurrentAuthenticationOptions({ id }: UserModelType, options: PublicKeyCredentialRequestOptionsJSON) {
+    challenges.login[id] = options;
 }
 
-export { getUserFromDB, getUserPasskeys, getCurrentRegistrationOptions, saveNewPasskeyInDB, setCurrentRegistrationOptions };
+function setCurrentRegistrationOptions({ id }: UserModelType, options: PublicKeyCredentialCreationOptionsJSON) {
+    challenges.register[id] = options;
+}
+
+export { getUserFromDB, getUserPasskeys, getCurrentRegistrationOptions, saveNewPasskeyInDB, setCurrentAuthenticationOptions, setCurrentRegistrationOptions };
+
+type ChallengeType = {
+    login: Record<number, PublicKeyCredentialRequestOptionsJSON>;
+    register: Record<number, PublicKeyCredentialCreationOptionsJSON>;
+};
 
 type PassKeyType = {
     backedUp: boolean;

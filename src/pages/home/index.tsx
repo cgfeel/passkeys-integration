@@ -8,7 +8,9 @@ const App: FC = () => {
 
     return (
         <Wrapper ref={wrapperRef}>
-            <h1 className="font-bold mb-4 text-4xl">Registration & add device</h1>
+            <h1 className="font-bold mb-4 text-4xl">
+                Registration & Bind device
+            </h1>
             <p className="mb-3">同一用户可以用不同设备多次绑定</p>
             <div className="flex gap-4 mb-3">
                 <input

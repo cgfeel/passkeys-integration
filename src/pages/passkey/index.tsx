@@ -57,8 +57,13 @@ const Passkey: FC = () => {
 
     return (
         <Wrapper>
-            <h1 className="font-bold mb-4 text-4xl">Login</h1>
-            <input name="username" placeholder="Username" value={name} onChange={e => setName(e.target.value)} />
+            <h1 className="font-bold mb-4 text-4xl">Authentication</h1>
+            <input
+                name="username"
+                placeholder="Username"
+                value={name}
+                onChange={e => setName(e.target.value)}
+            />
             <button onClick={registerStart}>Register</button>
             <button onClick={loginStart}>Login</button>
         </Wrapper>
