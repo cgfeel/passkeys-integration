@@ -69,7 +69,7 @@ const Passkey: FC = () => {
                 />
                 <button
                     className="bg-sky-600/100 cursor-pointer px-3 py-2 rounded-3xl text-gray-50"
-                    onClick={() => wrapperRef.current?.register(name)}>
+                    onClick={() => wrapperRef.current?.login(name)}>
                     Login
                 </button>
             </div>

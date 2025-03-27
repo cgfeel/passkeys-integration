@@ -91,7 +91,7 @@ app.post('/register/finish', async (req: Request, res: Response) => {
             saveNewPasskeyInDB(user, currentOptions, registrationInfo);
             res.status(200).send({ verified });
         } else {
-            res.status(500).send(false);
+            res.status(500).send({ verified: false });
         }
     } catch (error) {
         const { message } = error instanceof Error ? error : { message: "unknow error" }

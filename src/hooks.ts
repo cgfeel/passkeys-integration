@@ -1,5 +1,6 @@
 import {
     PublicKeyCredentialCreationOptionsJSON,
+    PublicKeyCredentialRequestOptionsJSON,
     startRegistration,
   } from "@simplewebauthn/browser";
 import { useCallback, useState } from "react";
@@ -7,7 +8,7 @@ import { fetchHandle } from "./servers";
 
 const handleStartRegistration = async (optionsJSON: PublicKeyCredentialCreationOptionsJSON) => {
   try {
-      const asseResp = await startRegistration({ optionsJSON });
+      const asseResp = await startRegistration({ useAutoRegister: true, optionsJSON });
       return asseResp;
   } catch (error) {
       const err = error as unknown as Record<PropertyKey, any>;
@@ -43,8 +44,9 @@ export const useRegister = () => {
     const loginHandle = useCallback(async (username: string) => {
         clear();
         verifyUsername(username, async () => {
-            const optionsJSON = await fetchHandle<PublicKeyCredentialCreationOptionsJSON>("/register/start", { username });
-            const asseResp = await handleStartRegistration(optionsJSON);
+            const optionsJSON = await fetchHandle<PublicKeyCredentialRequestOptionsJSON>("/login/start", { username });
+            console.log('a---options', optionsJSON);
+            /*const asseResp = await handleStartRegistration(optionsJSON);
 
             const verificationJSON = await fetchHandle<Record<PropertyKey, any>>("/register/finish", { data: asseResp, username });
             if (verificationJSON && verificationJSON.verified) {
@@ -54,7 +56,7 @@ export const useRegister = () => {
                 throw `Oh no, something went wrong! Response: ${JSON.stringify(
                     verificationJSON
                 )}`
-            }
+            }*/
         }).catch(error => {
             setStatus("error");
             setMessage(String(error));
