@@ -1,6 +1,7 @@
 import {
     generateAuthenticationOptions,
     generateRegistrationOptions,
+    verifyAuthenticationResponse,
     verifyRegistrationResponse,
 } from '@simplewebauthn/server';
 import bodyParser from 'body-parser';
@@ -10,10 +11,14 @@ import express, { Request, Response } from 'express';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { 
+    getCurrentAuthenticationOptions,
     getCurrentRegistrationOptions, 
+    getPassport, 
     getUserFromDB, 
+    getUserPasskey, 
     getUserPasskeys, 
     saveNewPasskeyInDB, 
+    saveUpdatedCounter, 
     setCurrentAuthenticationOptions, 
     setCurrentRegistrationOptions 
 } from './pseudocode';
@@ -120,19 +125,56 @@ app.post('/login/start', async (req: Request, res: Response) => {
 
     setCurrentAuthenticationOptions(user, options);
     res.json(options);
+});
 
-    // let challenge = getNewChallenge();
-    // challenges[username] = convertChallenge(challenge);
-    // console.log('a---login-start', users);
-    // res.json({
-    //     challenge,
-    //     rpId,
-    //     allowCredentials: [{
-    //         type: 'public-key',
-    //         // id: users[username].credentialID,
-    //         id: users[username].credential.id,
-    //         transports: ['internal'],
-    //     }],
-    //     userVerification: 'preferred',
-    // });
+app.post('/login/finish', async (req: Request, res: Response) => {
+    const { data = {}, username: name = "" } = req.body;
+    const username = String(name);
+
+    const user = getUserFromDB(username);
+    const currentOptions = user === undefined ? undefined : getCurrentAuthenticationOptions(user);
+    if (user === undefined || currentOptions === undefined) {
+        res.status(400).send({ error: "没有找到登录用户" });
+        return;
+    }
+
+    const id = String(data.id || '');
+    const passkey = getUserPasskey(user, String(data.id || ''));
+
+    if (passkey === undefined) {
+      res.status(400).send({ error: `Could not find passkey '${id}' for user ${user.id}` });
+      return;
+    }
+
+    try {
+        const verification = await verifyAuthenticationResponse({
+            credential: {
+                counter: passkey.counter,
+                id: passkey.id,
+                publicKey: passkey.publicKey,
+                transports: passkey.transports,
+            },
+            expectedChallenge: currentOptions.challenge,
+            expectedRPID: rpId,
+            response: data,
+            expectedOrigin
+        });
+        const { verified, authenticationInfo } = verification;
+        if (verified) {
+            saveUpdatedCounter(user, authenticationInfo);
+        }
+
+        res.status(200).send({ verified });
+    } catch (error) {
+        if (error instanceof Object && 'message' in error) {
+            res.status(400).send({ error: error.message });
+        } else {
+            res.status(400).send({ error: 'unknow error' });
+        } 
+    }
+});
+
+app.post('/passkeys', async (_, res: Response) => {
+    const data = getPassport();
+    res.json({ code: 200, data });
 });

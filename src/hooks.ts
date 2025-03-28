@@ -1,6 +1,7 @@
 import {
     PublicKeyCredentialCreationOptionsJSON,
     PublicKeyCredentialRequestOptionsJSON,
+    startAuthentication,
     startRegistration,
   } from "@simplewebauthn/browser";
 import { useCallback, useState } from "react";
@@ -45,7 +46,18 @@ export const useRegister = () => {
         clear();
         verifyUsername(username, async () => {
             const optionsJSON = await fetchHandle<PublicKeyCredentialRequestOptionsJSON>("/login/start", { username });
-            console.log('a---options', optionsJSON);
+            const asseResp = await startAuthentication({ optionsJSON });
+
+            const verificationJSON = await fetchHandle<Record<PropertyKey, any>>("/login/finish", { data: asseResp, username });
+            if (verificationJSON && verificationJSON.verified) {
+                setMessage("Success!");
+                setStatus("success");
+            } else {
+                throw `Oh no, something went wrong! Response: ${JSON.stringify(
+                    verificationJSON
+                )}`
+            }
+            console.log('a---options-1', verificationJSON);
             /*const asseResp = await handleStartRegistration(optionsJSON);
 
             const verificationJSON = await fetchHandle<Record<PropertyKey, any>>("/register/finish", { data: asseResp, username });

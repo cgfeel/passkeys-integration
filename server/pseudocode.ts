@@ -1,4 +1,4 @@
-import { AuthenticatorTransportFuture, Base64URLString, CredentialDeviceType, PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, VerifiedRegistrationResponse } from "@simplewebauthn/server";
+import { AuthenticatorTransportFuture, Base64URLString, CredentialDeviceType, PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, VerifiedAuthenticationResponse, VerifiedRegistrationResponse } from "@simplewebauthn/server";
 
 let id = 1;
 const challenges: ChallengeType = {
@@ -9,8 +9,19 @@ const challenges: ChallengeType = {
 const passport: PassKeyType[] = [];
 const users: Record<string, UserModelType> = {};
 
+function getCurrentAuthenticationOptions({ id }: UserModelType): PublicKeyCredentialRequestOptionsJSON | undefined {
+    return challenges.login[id];
+}
+
 function getCurrentRegistrationOptions({ id }: UserModelType): PublicKeyCredentialCreationOptionsJSON | undefined {
     return challenges.register[id];
+}
+
+function getPassport() {
+    return passport.reduce<Record<string, PassportList>>((current, { counter, create_at, last_used, user }) => {
+        const item = current[user.username] || { record: [{ counter, create_at, last_used }], user };
+        return { ...current, [user.username]: item };
+    }, {});
 }
 
 // 如果没有用户就创建一个
@@ -24,6 +35,10 @@ function getUserFromDB(username: string): UserModelType | undefined {
         }
     }
     return users[username];
+}
+
+function getUserPasskey(user: UserModelType, id: Base64URLString): PassKeyType | undefined {
+    return getUserPasskeys(user).filter(item => id === item.id)[0];
 }
 
 function getUserPasskeys({ id: userid }: UserModelType): PassKeyType[] {
@@ -49,6 +64,19 @@ function saveNewPasskeyInDB(user: UserModelType, options: PublicKeyCredentialCre
     });
 }
 
+function saveUpdatedCounter({ id: userid }: UserModelType, options: VerifiedAuthenticationResponse['authenticationInfo']) {
+    const index = passport.findIndex(({ id, user }) => user.id === userid && id === options.credentialID);
+    const passkey = passport[index];
+
+    if (passkey !== undefined) {
+        passport[index] = {
+            ...passkey,
+            counter: options.newCounter,
+            last_used: Date.now()
+        }
+    }
+}
+
 function setCurrentAuthenticationOptions({ id }: UserModelType, options: PublicKeyCredentialRequestOptionsJSON) {
     challenges.login[id] = options;
 }
@@ -57,28 +85,29 @@ function setCurrentRegistrationOptions({ id }: UserModelType, options: PublicKey
     challenges.register[id] = options;
 }
 
-export { getUserFromDB, getUserPasskeys, getCurrentRegistrationOptions, saveNewPasskeyInDB, setCurrentAuthenticationOptions, setCurrentRegistrationOptions };
+export { 
+    getCurrentAuthenticationOptions, 
+    getCurrentRegistrationOptions, 
+    getPassport,
+    getUserFromDB, 
+    getUserPasskey,
+    getUserPasskeys, 
+    saveNewPasskeyInDB, 
+    saveUpdatedCounter,
+    setCurrentAuthenticationOptions, 
+    setCurrentRegistrationOptions 
+};
 
 type ChallengeType = {
     login: Record<number, PublicKeyCredentialRequestOptionsJSON>;
     register: Record<number, PublicKeyCredentialCreationOptionsJSON>;
 };
 
-type PassKeyType = {
+type PassKeyType = PassKeyBaseType & {
     backedUp: boolean;
-    counter: number;
-    create_at: number;
     deviceType: CredentialDeviceType;
     id: Base64URLString;
-    last_used: number;
     publicKey: Uint8Array;
-    user: UserModelType;
     webauthnUserID: Base64URLString;
     transports?: AuthenticatorTransportFuture[]
 };
-
-type UserModelType = {
-    create_at: number;
-    id: number;
-    username: string;
-}

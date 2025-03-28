@@ -19,7 +19,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["server", "src"],
+  "include": ["server", "src", "index.d.ts"],
   "ts-node": {
     // Tell ts-node CLI to install the --loader automatically, explained below
     "experimentalSpecifierResolution": "node",
