@@ -1,16 +1,19 @@
 const SITE_URL = "http://localhost:3010";
 
-export const fetchHandle = async <T extends any,>(path: string, data: Object) => {
+export const fetchHandle = async <T extends any,>(path: string, data?: Object) => {
+  const body = data === undefined ? {} : { body: JSON.stringify(data) };
   const options = {
-    method: "POST",
+    method: data === undefined ? "GET" : "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
   };
 
-  const response = await fetch(`${SITE_URL}${path}`, options);
-  const json = await response.json() as T;
+  const response = await fetch(`${SITE_URL}${path}`, {
+    ...options,
+    ...body
+  });
 
+  const json = await response.json() as T;
   return json;
 };

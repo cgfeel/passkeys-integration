@@ -57,18 +57,6 @@ export const useRegister = () => {
                     verificationJSON
                 )}`
             }
-            console.log('a---options-1', verificationJSON);
-            /*const asseResp = await handleStartRegistration(optionsJSON);
-
-            const verificationJSON = await fetchHandle<Record<PropertyKey, any>>("/register/finish", { data: asseResp, username });
-            if (verificationJSON && verificationJSON.verified) {
-                setMessage("Success!");
-                setStatus("success");
-            } else {
-                throw `Oh no, something went wrong! Response: ${JSON.stringify(
-                    verificationJSON
-                )}`
-            }*/
         }).catch(error => {
             setStatus("error");
             setMessage(String(error));

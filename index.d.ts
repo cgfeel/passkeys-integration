@@ -1,13 +1,14 @@
 type PassKeyBaseType = {
     counter: number;
     create_at: number;
+    id: string;
     last_used: number;
     user: UserModelType;
 };
 
 type PassportList = {
-    info: UserModelType;
-    record: Pick<PassKeyBaseType, 'counter' | 'create_at' | 'last_used'>;
+    record: Pick<PassKeyBaseType, 'counter' | 'create_at' | 'id' | 'last_used'>[];
+    user: UserModelType;
 }
 
 type UserModelType = {

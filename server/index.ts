@@ -174,7 +174,7 @@ app.post('/login/finish', async (req: Request, res: Response) => {
     }
 });
 
-app.post('/passkeys', async (_, res: Response) => {
+app.get('/passkeys', async (_, res: Response) => {
     const data = getPassport();
     res.json({ code: 200, data });
 });

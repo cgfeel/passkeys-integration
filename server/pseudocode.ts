@@ -1,4 +1,12 @@
-import { AuthenticatorTransportFuture, Base64URLString, CredentialDeviceType, PublicKeyCredentialCreationOptionsJSON, PublicKeyCredentialRequestOptionsJSON, VerifiedAuthenticationResponse, VerifiedRegistrationResponse } from "@simplewebauthn/server";
+import { 
+    AuthenticatorTransportFuture, 
+    Base64URLString, 
+    CredentialDeviceType, 
+    PublicKeyCredentialCreationOptionsJSON, 
+    PublicKeyCredentialRequestOptionsJSON, 
+    VerifiedAuthenticationResponse, 
+    VerifiedRegistrationResponse 
+} from "@simplewebauthn/server";
 
 let id = 1;
 const challenges: ChallengeType = {
@@ -18,8 +26,8 @@ function getCurrentRegistrationOptions({ id }: UserModelType): PublicKeyCredenti
 }
 
 function getPassport() {
-    return passport.reduce<Record<string, PassportList>>((current, { counter, create_at, last_used, user }) => {
-        const item = current[user.username] || { record: [{ counter, create_at, last_used }], user };
+    return passport.reduce<Record<string, PassportList>>((current, { counter, create_at, id, last_used, user }) => {
+        const item = current[user.username] || { record: [{ counter, create_at, id, last_used }], user };
         return { ...current, [user.username]: item };
     }, {});
 }
@@ -106,7 +114,6 @@ type ChallengeType = {
 type PassKeyType = PassKeyBaseType & {
     backedUp: boolean;
     deviceType: CredentialDeviceType;
-    id: Base64URLString;
     publicKey: Uint8Array;
     webauthnUserID: Base64URLString;
     transports?: AuthenticatorTransportFuture[]
