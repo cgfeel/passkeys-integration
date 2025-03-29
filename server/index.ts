@@ -85,9 +85,10 @@ app.post('/register/finish', async (req: Request, res: Response) => {
     try {
         const verification = await verifyRegistrationResponse({
             expectedRPID: rpId,
-            response: req.body.data,
-            requireUserVerification: true,
             expectedChallenge: currentOptions.challenge,
+            requireUserPresence: false,
+            requireUserVerification: true,
+            response: req.body.data,
             expectedOrigin
         });
 

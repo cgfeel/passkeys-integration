@@ -1,4 +1,4 @@
-const SITE_URL = "http://localhost:3010";
+const SITE_URL = `http://${window.location.hostname}:3010`;
 
 export const fetchHandle = async <T extends any,>(path: string, data?: Object) => {
   const body = data === undefined ? {} : { body: JSON.stringify(data) };
