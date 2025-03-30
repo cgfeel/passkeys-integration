@@ -1,9 +1,9 @@
 const SITE_URL = `http://${window.location.hostname}:3010`;
 
 export const fetchHandle = async <T extends any,>(path: string, data?: Object) => {
-  const body = data === undefined ? {} : { body: JSON.stringify(data) };
+  const body = data === void 0 ? {} : { body: JSON.stringify(data) };
   const options = {
-    method: data === undefined ? "GET" : "POST",
+    method: data === void 0 ? "GET" : "POST",
     headers: {
       "Content-Type": "application/json",
     },

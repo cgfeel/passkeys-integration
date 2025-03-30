@@ -76,7 +76,7 @@ function saveUpdatedCounter({ id: userid }: UserModelType, options: VerifiedAuth
     const index = passport.findIndex(({ id, user }) => user.id === userid && id === options.credentialID);
     const passkey = passport[index];
 
-    if (passkey !== undefined) {
+    if (passkey !== void 0) {
         passport[index] = {
             ...passkey,
             counter: options.newCounter,

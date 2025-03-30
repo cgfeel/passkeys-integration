@@ -47,7 +47,7 @@ app.post('/register/start', async (req: Request, res: Response) => {
     const username = String(req.body.username||'');
     const user = getUserFromDB(username);
 
-    if (user === undefined) {
+    if (user === void 0) {
         res.status(400).send({ error: "用户名不能为空" });
         return;
     }
@@ -76,8 +76,8 @@ app.post('/register/finish', async (req: Request, res: Response) => {
     const username = String(req.body.username||'');
     const user = getUserFromDB(username);
 
-    const currentOptions = user === undefined ? undefined : getCurrentRegistrationOptions(user);
-    if (user === undefined || currentOptions === undefined) {
+    const currentOptions = user === void 0 ? void 0 : getCurrentRegistrationOptions(user);
+    if (user === void 0 || currentOptions === void 0) {
         res.status(400).send({ error: "没有找到注册用户" });
         return;
     }
@@ -108,7 +108,7 @@ app.post('/register/finish', async (req: Request, res: Response) => {
 app.post('/login/start', async (req: Request, res: Response) => {
     const username = String(req.body.username||'');
     const user = getUserFromDB(username);
-    if (user === undefined) {
+    if (user === void 0) {
         res.status(400).send({ error: "没有找到注册用户" });
         return;
     }
@@ -133,8 +133,8 @@ app.post('/login/finish', async (req: Request, res: Response) => {
     const username = String(name);
 
     const user = getUserFromDB(username);
-    const currentOptions = user === undefined ? undefined : getCurrentAuthenticationOptions(user);
-    if (user === undefined || currentOptions === undefined) {
+    const currentOptions = user === void 0 ? void 0 : getCurrentAuthenticationOptions(user);
+    if (user === void 0 || currentOptions === void 0) {
         res.status(400).send({ error: "没有找到登录用户" });
         return;
     }
@@ -142,7 +142,7 @@ app.post('/login/finish', async (req: Request, res: Response) => {
     const id = String(data.id || '');
     const passkey = getUserPasskey(user, String(data.id || ''));
 
-    if (passkey === undefined) {
+    if (passkey === void 0) {
       res.status(400).send({ error: `Could not find passkey '${id}' for user ${user.id}` });
       return;
     }
