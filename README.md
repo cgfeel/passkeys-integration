@@ -2,6 +2,8 @@
 
 演示结果要实现：账号注册 & 设备绑定、设备登录校验、查看注册的账号及绑定信息
 
+<img width="448" alt="image" src="https://github.com/user-attachments/assets/ebc54138-705b-42a1-96e1-6d2e0dc44fc5" />
+
 ## 安装
 
 ```bash
