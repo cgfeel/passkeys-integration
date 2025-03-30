@@ -83,8 +83,6 @@ function saveUpdatedCounter({ id: userid }: UserModelType, options: VerifiedAuth
             last_used: Date.now()
         }
     }
-
-    console.log(passport);
 }
 
 function setCurrentAuthenticationOptions({ id }: UserModelType, options: PublicKeyCredentialRequestOptionsJSON) {

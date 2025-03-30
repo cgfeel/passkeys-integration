@@ -4,6 +4,8 @@
 
 <img width="448" alt="image" src="https://github.com/user-attachments/assets/ebc54138-705b-42a1-96e1-6d2e0dc44fc5" />
 
+> 以下流程假定对 `passkeys` 已有大致了解进行展开，如果要了解 `passkeys` 基础知识，可以从下方相关资料了解 [[查看](#参考资料)]
+
 ## 安装
 
 ```bash
@@ -111,3 +113,17 @@ npm run build
 
 -   纯 JS 运行环境、目前依旧在维护
 -   `NextAuth` 对于 `passkeys` 的方案也是 `simplewebauthn`：https://www.authjs.cn/getting-started/authentication/webauthn
+
+## `chrome` 管理 `passkeys`
+
+设置 - 密码管理，找到 `passkeys` 进行管理
+
+-   管理地址：chrome://settings/passkeys
+-   已绑定设备后重复绑定会报错，可以通过删除 `chrome` 中的 `passkey` 解决
+
+可以使用的设备
+
+-   由不同设备上的浏览器决定，目前国内的大部分 `Android` 并不支持，`iOS` 也需要 14 以上才支持
+-   除此之外 `chrome` 会根据登录的账号选择设备
+
+> 详细资料：https://support.google.com/accounts/answer/13548313?hl=zh-Hans
