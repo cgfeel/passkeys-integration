@@ -46,7 +46,7 @@ export const useRegister = () => {
         clear();
         verifyUsername(username, async () => {
             const optionsJSON = await fetchHandle<PublicKeyCredentialRequestOptionsJSON>("/login/start", { username });
-            const asseResp = await startAuthentication({ useBrowserAutofill: true, verifyBrowserAutofillInput: false, optionsJSON });
+            const asseResp = await startAuthentication({ optionsJSON });
 
             const verificationJSON = await fetchHandle<Record<PropertyKey, any>>("/login/finish", { data: asseResp, username });
             if (verificationJSON && verificationJSON.verified) {

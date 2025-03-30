@@ -18,7 +18,7 @@ const Records: FC = () => {
     }, []);
 
     return (
-        <Wrapper>
+        <Wrapper filter={true}>
             <h1 className="font-bold mb-4 text-4xl">Records list</h1>
             {loading ? (
                 <div className="text-center text-gray-500 p-24">

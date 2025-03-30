@@ -1,3 +1,4 @@
+import { browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import { FC, PropsWithChildren, RefObject, useImperativeHandle } from "react";
 import { tv } from "tailwind-variants";
 import { useRegister } from "../hooks";
@@ -18,7 +19,11 @@ const tips = tv({
     },
 });
 
-const Wrapper: FC<PropsWithChildren<WrapperProps>> = ({ children, ref }) => {
+const Wrapper: FC<PropsWithChildren<WrapperProps>> = ({
+    children,
+    filter,
+    ref,
+}) => {
     const { message, status, clear, loginHandle, registerHandle } =
         useRegister();
 
@@ -32,13 +37,17 @@ const Wrapper: FC<PropsWithChildren<WrapperProps>> = ({ children, ref }) => {
         [],
     );
 
-    return (
+    return browserSupportsWebAuthn() || filter ? (
         <div className="px-5 py-8">
             {children}
             <p className={tips({ status })}>
                 {status !== "default" && <span>{icon[status]}</span>}
                 {message}
             </p>
+        </div>
+    ) : (
+        <div className="px-5 py-8">
+            It seems this browser does not support WebAuthn...
         </div>
     );
 };
@@ -52,5 +61,6 @@ export interface WrapperInstance {
 }
 
 interface WrapperProps {
+    filter?: boolean;
     ref?: RefObject<WrapperInstance | null>;
 }

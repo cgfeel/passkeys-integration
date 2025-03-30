@@ -1,4 +1,3 @@
-// import { fido2Create, fido2Get } from "@ownid/webauthn";
 import { FC, useRef, useState } from "react";
 import Wrapper, { WrapperInstance } from "../../components/Wrapper";
 
@@ -16,6 +15,7 @@ const App: FC = () => {
                 <input
                     className="border px-3 py-2 rounded-md"
                     maxLength={20}
+                    name="username"
                     onChange={({ target }) => setName(target.value)}
                     onInput={() => wrapperRef.current?.clear()}
                 />
