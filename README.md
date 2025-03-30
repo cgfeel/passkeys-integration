@@ -95,13 +95,17 @@ npm run build
 -   `@simplewebauthn/server`：https://simplewebauthn.dev/docs/packages/server
 -   `@simplewebauthn/browser`：https://simplewebauthn.dev/docs/packages/browser
 
+基础知识：
+
+-   `W3C`：https://www.w3.org/TR/webauthn/
+-   `mdn`：https://developer.mozilla.org/zh-CN/docs/Web/API/Web_Authentication_API
+-   廖雪峰解读 `passkeys` 配置：https://liaoxuefeng.com/blogs/all/2023-08-16-passkey-dev/index.html
+
 其他资料：
 
--   `mdn`：https://developer.mozilla.org/zh-CN/docs/Web/API/Web_Authentication_API
 -   `passkeys`：https://www.passkeys.com/guide
 -   `safe`：https://docs.safe.global/advanced/passkeys/tutorials/react
 -   `@teamhanko/passkeys-sdk`：https://www.hanko.io/blog/passkeys-react
--   廖雪峰解读 `passkeys` 配置：https://liaoxuefeng.com/blogs/all/2023-08-16-passkey-dev/index.html
 
 `webauthn` 开发库：
 
@@ -114,9 +118,9 @@ npm run build
 -   纯 JS 运行环境、目前依旧在维护
 -   `NextAuth` 对于 `passkeys` 的方案也是 `simplewebauthn`：https://www.authjs.cn/getting-started/authentication/webauthn
 
-## `chrome` 管理 `passkeys`
+## 答疑
 
-设置 - 密码管理，找到 `passkeys` 进行管理
+`chrome` 管理 `passkeys`，设置 - 密码管理，找到 `passkeys` 进行管理
 
 -   管理地址：chrome://settings/passkeys
 -   已绑定设备后重复绑定会报错，可以通过删除 `chrome` 中的 `passkey` 解决
@@ -127,3 +131,13 @@ npm run build
 -   除此之外 `chrome` 会根据登录的账号选择设备
 
 > 详细资料：https://support.google.com/accounts/answer/13548313?hl=zh-Hans
+
+`simplewebauthn` 提供由传统账号密码，过渡到 `passkeys` 的方法
+
+-   见 `useBrowserAutofill`：https://simplewebauthn.dev/docs/packages/server
+
+关于 `response` 中的 `counter` 解读：
+
+用于作为签名计数使用，对于 `Touch ID` 可能永远返回 0，详细如下说明
+
+-   https://simplewebauthn.dev/docs/packages/server#3-post-registration-responsibilities
