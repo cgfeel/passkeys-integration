@@ -140,7 +140,7 @@ app.post('/login/finish', async (req: Request, res: Response) => {
     }
 
     const id = String(data.id || '');
-    const passkey = getUserPasskey(user, String(data.id || ''));
+    const passkey = getUserPasskey(user, id);
 
     if (passkey === void 0) {
       res.status(400).send({ error: `Could not find passkey '${id}' for user ${user.id}` });
